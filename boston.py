@@ -193,7 +193,8 @@ predictions = ln.predict(X_test)
 print('MAE:', metrics.mean_absolute_error(y_test, predictions))
 print('MSE:', metrics.mean_squared_error(y_test, predictions))
 print('RMSE:', np.sqrt(metrics.mean_squared_error(y_test, predictions)))
-
+print('R2:', metrics.r2_score(y_test, predictions))
+print('Tran score:', ln.score(X_train,y_train))
 # df_bar = pd.DataFrame({'Y_test':y_test,'Y_train':y_train})
 # df_bar.plot(kind='bar')
 # plt.plot(predictions)
@@ -203,9 +204,9 @@ print('RMSE:', np.sqrt(metrics.mean_squared_error(y_test, predictions)))
 # plt.show()
 # sns.heatmap(df.corr(),annot=True)
 # plt.show()
-result = pd.DataFrame(data= ['MAE','MSE','RMSE'],columns=['index'])
+result = pd.DataFrame(data= ['MAE','MSE','RMSE','R2','TRAN SCORE'],columns=['index'])
 result.set_index('index',inplace=True,drop=True)
-result['Data'] = [metrics.mean_absolute_error(y_test, predictions),metrics.mean_squared_error(y_test, predictions),np.sqrt(metrics.mean_squared_error(y_test, predictions))]
+result['Data'] = [metrics.mean_absolute_error(y_test, predictions),metrics.mean_squared_error(y_test, predictions),np.sqrt(metrics.mean_squared_error(y_test, predictions)),metrics.r2_score(y_test, predictions),ln.score(X_train,y_train)]
 # Normalization 
 # norm_x = (x - min_x) / (max_x - min_x)
 def normalization(data):
@@ -241,7 +242,7 @@ df_norm['target'] = df['target']
 # print(df_norm.describe())
 X_norm = df_norm.drop(columns="target")
 y_norm = df_norm['target']
-X_train, X_test, y_train, y_test = train_test_split(X_norm, y_norm, test_size=0.3, random_state=101) 
+X_train, X_test, y_train, y_test = train_test_split(X_norm, y_norm, test_size=0.2, random_state=101) 
 
 ln_norm = LinearRegression()
 ln_norm.fit(X_train,y_train)
@@ -251,6 +252,53 @@ predictions_norm = ln_norm.predict(X_test)
 print('MAE:', metrics.mean_absolute_error(y_test, predictions_norm))
 print('MSE:', metrics.mean_squared_error(y_test, predictions_norm))
 print('RMSE:', np.sqrt(metrics.mean_squared_error(y_test, predictions_norm)))
-result['Data_Normalization'] = [metrics.mean_absolute_error(y_test, predictions_norm),metrics.mean_squared_error(y_test, predictions_norm),np.sqrt(metrics.mean_squared_error(y_test, predictions_norm))]
+print('R2:', metrics.r2_score(y_test, predictions_norm))
+result['Data_Normalization'] = [metrics.mean_absolute_error(y_test, predictions_norm),metrics.mean_squared_error(y_test, predictions_norm),np.sqrt(metrics.mean_squared_error(y_test, predictions_norm)),metrics.r2_score(y_test, predictions_norm),ln_norm.score(X_train,y_train)]
+# print(result)
+# print(ln_norm.score(X_train,y_train))
+
+# sns.distplot(df['CRIM'])
+# df_CRIM = df['CRIM']
+# df_CRIM_2 = [x if x <  25 else 25   for x in df_CRIM]
+# print(f'{len(df_norm["CRIM"])} -- {len(df_CRIM)} -- {len(df_CRIM_2)}')
+# plt.hist(df_CRIM_2)
+# sns.boxplot(data=df,x='CRIM',orient='v')
+# plt.scatter(x='CRIM',y='target',data=df)
+
+
+
+
+#  Log Transform 
+# sns.heatmap(df.corr(),annot=True)
+# plt.show()
+
+# df['CRIM'] = df['CRIM'].apply(lambda x : np.log10(x))
+# plt.hist(df['CRIM'],bins=30)
+df['ZN'] = df['ZN'].apply(lambda x : np.log10(x+1))
+# plt.hist(df['ZN'],bins=30)
+# plt.show()
+
+# plt.hist(df['ZN'],bins=30)
+# plt.show()
+# plt.hist(df['RM'],bins=30)
+# plt.show()
+# plt.hist(df['B'],bins=30)
+# plt.show()
+
+# sns.heatmap(df.corr(),annot=True)
+# plt.show()
+
+X = df.drop(columns="target")
+y= df['target']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=101) 
+ln_log = LinearRegression()
+ln_log.fit(X_train,y_train)
+print(f"Coreficiant  Log Transform  {ln_log.coef_}")
+print(f"Intercept Log Transform   {ln_log.intercept_}")
+predictions_log = ln_log.predict(X_test)
+print('MAE:', metrics.mean_absolute_error(y_test, predictions_log))
+print('MSE:', metrics.mean_squared_error(y_test, predictions_log))
+print('RMSE:', np.sqrt(metrics.mean_squared_error(y_test, predictions_log)))
+print('R2:', metrics.r2_score(y_test, predictions_log))
+result['Data_Log_Transform '] = [metrics.mean_absolute_error(y_test, predictions_log),metrics.mean_squared_error(y_test, predictions_log),np.sqrt(metrics.mean_squared_error(y_test, predictions_log)),metrics.r2_score(y_test, predictions_log),ln_log.score(X_train,y_train)]
 print(result)
-print(ln_norm.score(X_train,y_train))
