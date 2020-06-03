@@ -12,6 +12,9 @@ from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
 
+from sklearn.pipeline import Pipeline
+from sklearn.base import BaseEstimator, TransformerMixin
+
 df = pd.read_csv(
     "https://raw.githubusercontent.com/mrpeerat/Machine_Learning_0-100/master/04%20Logistic%20Regression/titanic_data.csv")
 print(df.shape)
@@ -191,3 +194,48 @@ def predict4():
 
 
 predict4()
+
+
+class ToNumbers(BaseEstimator, TransformerMixin):
+    def __init__(self, cols):
+        self.cols = cols
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        for c in cols:
+            encoded, categories = X[c].factorize()
+            X[c] = encoded
+        return X.values
+
+
+class DropColume():
+    def __init__(self):
+        self
+
+    def fit(self, X, y=None):
+        print("fit")
+        return self
+
+    def transform(self, X):
+        print("transform before ")
+        print(X)
+        X.drop(['Name', 'Cabin', 'Embarked', 'Ticket'], inplace=True, axis=1)
+        print("transform after")
+        print(X)
+        return X
+
+
+cols = ['Pclass', 'Fare', 'Sex_female', 'Sex_male', 'Age',
+        'Parch', 'Embarked_C', 'Embarked_Q', 'Embarked_S', 'SibSp']
+
+pipeline = Pipeline([
+    ('DropColume', DropColume()),
+    ('toNumbers', ToNumbers(cols)),
+    ('scaler', StandardScaler()),
+])
+
+data = pipeline.fit_transform(df)
+
+print(data)
